@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 from .openapi import TuyaOpenAPI, TuyaTokenInfo
 # from .device import TuyaDeviceManager, TuyaDevice, TuyaDeviceListener
 from .openlogging import TUYA_LOGGER
