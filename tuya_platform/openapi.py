@@ -57,6 +57,7 @@ class TuyaOpenAPI:
         access_id: str,
         access_secret: str,
         lang: str = "en",
+        auto_connect: bool = True
     ):
         """Init TuyaOpenAPI."""
         self.session = requests.session()
@@ -69,6 +70,8 @@ class TuyaOpenAPI:
         self.__login_path = GET_TOKEN_API
 
         self.token_info: TuyaTokenInfo | None = None
+        if auto_connect:
+            self.connect()
 
     # https://developer.tuya.com/docs/iot/open-api/api-reference/singnature?id=Ka43a5mtx1gsc
     def _calculate_sign(
