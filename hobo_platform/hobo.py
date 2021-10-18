@@ -1,5 +1,3 @@
-#!/usr/bin/env python
-# -*- coding: UTF-8 -*-
 """HOBO API"""
 
 from __future__ import annotations
@@ -9,7 +7,6 @@ import time
 import requests
 import json
 import logging
-from dotenv import dotenv_values
 
 # https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
 logger = logging.getLogger('hobo_iot')
@@ -19,6 +16,7 @@ default_handler.setFormatter(logging.Formatter(
     "[%(asctime)s] [tuya-%(module)s] %(message)s"
 ))
 logger.addHandler(default_handler)
+HoboLogger = logger
 
 HOBO_ENDPOINT = "https://webservice.hobolink.com"
 HOBO_GET_TOKEN_API = "/ws/auth/token"
@@ -235,26 +233,3 @@ class HoboAPI:
             response: response body
         """
         return self.__request(method="POST", path=path, params=None, body=body, auth_required=(not oauth))
-
-
-if __name__ == '__main__':
-    config = dotenv_values(".env")
-    CLIENT_ID = config["HOBO_CLIENT_ID"]
-    CLIENT_SECRET = config["HOBO_CLIENT_SECRET"]
-    USER_ID = config["HOBO_USER_ID"]
-
-    # Uncomment the following line to show debug output
-    # logger.setLevel(logging.DEBUG)
-
-    hobo_api = HoboAPI(CLIENT_ID, CLIENT_SECRET, USER_ID)
-    print(hobo_api.token_info.access_token)
-
-    devices = [
-        config["LOGGER_1"],
-        config["LOGGER_2"]
-    ]
-    start_time = '2021-10-15 00:00:00'
-    end_time = '2021-10-15 01:00:00'
-    response = hobo_api.get_data(devices, start_time, end_time)
-    # Pretty print the JSON object from response
-    print(json.dumps(response, indent=2))
