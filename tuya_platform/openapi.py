@@ -72,8 +72,6 @@ class TuyaOpenAPI:
 
         self.token_info: TuyaTokenInfo | None = None
 
-        self.dev_channel: str = ""
-
     # https://developer.tuya.com/docs/iot/open-api/api-reference/singnature?id=Ka43a5mtx1gsc
     def _calculate_sign(
         self,
@@ -153,10 +151,6 @@ class TuyaOpenAPI:
 
         self.token_info = TuyaTokenInfo(response)
 
-    def set_dev_channel(self, dev_channel: str):
-        """Set dev channel."""
-        self.dev_channel = dev_channel
-
     def connect(
         self
     ) -> Dict[str, Any]:
@@ -207,11 +201,6 @@ class TuyaOpenAPI:
             "t": str(t),
             "lang": self.lang,
         }
-
-        if self.__login_path == path:
-            headers["dev_lang"] = "python"
-            headers["dev_version"] = VERSION
-            headers["dev_channel"] = self.dev_channel
 
         logger.debug(
             f"Request: method = {method}, \
