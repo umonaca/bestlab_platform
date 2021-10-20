@@ -10,11 +10,13 @@ if __name__ == '__main__':
     CLIENT_SECRET = config["HOBO_CLIENT_SECRET"]
     USER_ID = config["HOBO_USER_ID"]
 
-    # Uncomment the following line to show debug output
+    # Uncomment the following lines to show debug output
+    #
+    # from bestlab_platform.hobo import HoboLogger
     # HoboLogger.setLevel(logging.DEBUG)
 
     hobo_api = HoboAPI(CLIENT_ID, CLIENT_SECRET, USER_ID)
-    print(hobo_api.token_info.access_token)
+    print(f"access token: {hobo_api.token_info.access_token}")
 
     devices = [
         config["LOGGER_1"],
