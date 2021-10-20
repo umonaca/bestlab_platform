@@ -7,6 +7,7 @@ import time
 import requests
 import json
 import logging
+from ..exceptions import ResponseError
 
 # https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
 logger = logging.getLogger('hobo_iot')
@@ -20,21 +21,6 @@ HoboLogger = logger
 
 HOBO_ENDPOINT = "https://webservice.hobolink.com"
 HOBO_GET_TOKEN_API = "/ws/auth/token"
-
-
-class ResponseError(Exception):
-    """Exception raised for errors in the HTTP response.
-
-    Attributes:
-        message: explanation of the error
-        status_code: HTTP status code
-        response_text: HTTP response text
-    """
-    def __init__(self, status_code: int | str, response_text, *args):
-        self.message = f"HTTP response code: {status_code}, response text: {response_text}"
-        self.status_code = status_code
-        self.response_text = response_text
-        super().__init__(self.message)
 
 
 class HoboTokenInfo:
