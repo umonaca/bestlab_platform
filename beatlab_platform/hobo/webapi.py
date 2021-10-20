@@ -13,13 +13,28 @@ logger = logging.getLogger('hobo_iot')
 # logger.setLevel(logging.DEBUG)
 default_handler = logging.StreamHandler()
 default_handler.setFormatter(logging.Formatter(
-    "[%(asctime)s] [tuya-%(module)s] %(message)s"
+    "[%(asctime)s] [hobo-%(module)s] %(message)s"
 ))
 logger.addHandler(default_handler)
 HoboLogger = logger
 
 HOBO_ENDPOINT = "https://webservice.hobolink.com"
 HOBO_GET_TOKEN_API = "/ws/auth/token"
+
+
+class ResponseError(Exception):
+    """Exception raised for errors in the HTTP response.
+
+    Attributes:
+        message: explanation of the error
+        status_code: HTTP status code
+        response_text: HTTP response text
+    """
+    def __init__(self, status_code: int | str, response_text, *args):
+        self.message = f"HTTP response code: {status_code}, response text: {response_text}"
+        self.status_code = status_code
+        self.response_text = response_text
+        super().__init__(self.message)
 
 
 class HoboTokenInfo:
@@ -30,7 +45,6 @@ class HoboTokenInfo:
         token_type: "bearer".
         expire_time: Time in seconds when the token will be expired.
     """
-
     def __init__(self, token_response: Dict[str, Any] = None):
         """Init HoboTokenInfo."""
 
@@ -56,7 +70,6 @@ class HoboAPI:
         hobo_api = HoboAPI(client_id, client_secret, user_id)
         hobo_api.get_data(["1234567", "8912345"], start_date_time, end_date_time)
     """
-
     def __init__(
             self,
             client_id: str,
@@ -71,7 +84,7 @@ class HoboAPI:
 
         self.session = requests.session()
 
-        self.token_info: HoboTokenInfo = None
+        self.token_info: HoboTokenInfo | None = None
         self._get_access_token_if_needed(force=True)
 
     def get_data(
@@ -83,7 +96,7 @@ class HoboAPI:
         """Get data from HOBO Web Services
 
         Args:
-            loggers:
+            loggers (List[Union[str, int]] | Union[str, int]):
                 A list of Device IDs, or a single comma separated string of device ids.
             start_date_time (str):
                 Must be in yyyy-MM-dd HH:mm:ss format
@@ -94,10 +107,9 @@ class HoboAPI:
             response: connect response
 
         Raises:
-            ValueError:
+            TypeError:
                 The "loggers" parameter type is incorrect
         """
-
         # Comma separated list of logger device IDs
         logger_list: str = ""
         if isinstance(loggers, str):
@@ -105,7 +117,7 @@ class HoboAPI:
         elif isinstance(loggers, list):
             logger_list: str = ",".join((str(id) for id in loggers))
         else:
-            raise ValueError('Please check your input to get_data function')
+            raise TypeError('Please check your input to get_data function')
 
         params = {
             "loggers": logger_list,
@@ -120,7 +132,14 @@ class HoboAPI:
         return response
 
     def _get_access_token_if_needed(self, force: bool = False):
-        """Get a new token if needed"""
+        """Get a new token if needed
+
+        Args:
+            force (bool): do not cache old token
+
+        Raises:
+            ResponseError: HTTP status code and response text
+        """
         if not force and self.token_info and not self.token_info.need_refresh():
             return
 
@@ -129,12 +148,27 @@ class HoboAPI:
             "client_id": self.client_id,
             "client_secret": self.client_secret
         }
-        response = self.post(
-            path=HOBO_GET_TOKEN_API,
-            body=payload
+
+        logger.debug(
+            f"Request: method = POST, \
+                 url = {self.endpoint + HOBO_GET_TOKEN_API},\
+                 params = None,\
+                 body = {payload},\
+                 t = {int(time.time())}"
         )
 
-        self.token_info = HoboTokenInfo(response)
+        response: requests.Response = self.session.post(
+            url=self.endpoint + HOBO_GET_TOKEN_API,
+            data=payload
+        )
+
+        if response.ok is False:
+            logger.error(
+                f"Response error: code={response.status_code}, body={response.text}"
+            )
+            raise ResponseError(response.status_code, response.text)
+
+        self.token_info = HoboTokenInfo(response.json())
 
     def __request(
         self,
@@ -155,17 +189,13 @@ class HoboAPI:
                 Request parameter
             body (map):
                 Request body, passed to "data" parameter of requests.post
-            auth_required (bool):
-                auth_required=True means the Bearer token will be included in the request header
-                When trying to get a new token, auth_required should be False
-                because you don't need the token itself to get a token
 
         Returns:
             response: response body
+
+        Raises:
+            ResponseError: HTTP status code and response text
         """
-        # Note: auth_required means the Bearer token will be included in the request header
-        # When trying to get a new token, auth_required should be False
-        # since you don't need the token itself to get a token
         if auth_required:
             self._get_access_token_if_needed()
 
@@ -190,7 +220,7 @@ class HoboAPI:
             logger.error(
                 f"Response error: code={response.status_code}, body={response.text}"
             )
-            return None
+            raise ResponseError(response.status_code, response.text)
 
         result = response.json()
 
@@ -214,11 +244,10 @@ class HoboAPI:
         Returns:
             response: response body
         """
-
         return self.__request(method="GET", path=path, params=params, body=None)
 
     def post(
-        self, path: str, body: Optional[Dict[str, Any]] = None, oauth: bool = True
+        self, path: str, body: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
         """Http Post.
 
@@ -227,9 +256,8 @@ class HoboAPI:
         Args:
             path (str): api path
             body (map): request body
-            oauth (bool): True if this POST request is used to get a Token
 
         Returns:
             response: response body
         """
-        return self.__request(method="POST", path=path, params=None, body=body, auth_required=(not oauth))
+        return self.__request(method="POST", path=path, params=None, body=body)
