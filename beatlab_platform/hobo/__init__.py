@@ -1,11 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
-from .hobo import HoboAPI, HoboTokenInfo, HoboLogger
-from .version import VERSION
+from .webapi import HoboAPI, HoboTokenInfo, HoboLogger
 
 __all__ = [
     "HoboAPI",
     "HoboTokenInfo",
     "HoboLogger"
 ]
-__version__ = VERSION

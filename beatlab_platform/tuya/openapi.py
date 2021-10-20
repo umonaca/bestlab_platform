@@ -11,7 +11,6 @@ from typing import Any, Dict, Optional, Tuple
 import requests
 
 from .openlogging import filter_logger, logger
-from .version import VERSION
 
 TUYA_ERROR_CODE_TOKEN_INVALID = 1010
 GET_TOKEN_API = "/v1.0/token"

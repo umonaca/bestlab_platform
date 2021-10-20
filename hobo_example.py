@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: UTF-8 -*-
 from dotenv import dotenv_values
-import logging
 import json
-from hobo_platform import HoboAPI, HoboLogger
+from beatlab_platform.hobo import HoboAPI
 
 if __name__ == '__main__':
     config = dotenv_values(".env")
