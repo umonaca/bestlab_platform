@@ -104,7 +104,7 @@ class HoboAPI:
                 Must be in yyyy-MM-dd HH:mm:ss format
 
         Returns:
-            response: connect response
+            response (dict): JSON decoded connect response
 
         Raises:
             TypeError:
@@ -191,7 +191,7 @@ class HoboAPI:
                 Request body, passed to "data" parameter of requests.post
 
         Returns:
-            response: response body
+            response (dict): JSON decoded response body
 
         Raises:
             ResponseError: HTTP status code and response text
@@ -242,7 +242,7 @@ class HoboAPI:
             params (map): request parameter
 
         Returns:
-            response: response body
+            response (dict): JSON decoded response body
         """
         return self.__request(method="GET", path=path, params=params, body=None)
 
@@ -258,6 +258,6 @@ class HoboAPI:
             body (map): request body
 
         Returns:
-            response: response body
+            response (dict): JSON decoded response body
         """
         return self.__request(method="POST", path=path, params=None, body=body)

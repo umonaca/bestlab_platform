@@ -2,7 +2,7 @@
 # -*- coding: UTF-8 -*-
 from dotenv import dotenv_values
 import json
-from beatlab_platform.hobo import HoboAPI
+from bestlab_platform.hobo import HoboAPI
 
 if __name__ == '__main__':
     config = dotenv_values(".env")

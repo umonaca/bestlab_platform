@@ -9,7 +9,7 @@ from __future__ import annotations
 
 import json
 from dotenv import dotenv_values
-from beatlab_platform.tuya import TuyaOpenAPI
+from bestlab_platform.tuya import TuyaOpenAPI
 
 HISTORICAL_API = "/v1.0/devices/{}/logs"
 
