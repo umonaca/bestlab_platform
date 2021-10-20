@@ -77,7 +77,8 @@ class HoboAPI:
         self,
         loggers: List[Union[str, int]] | Union[str, int],
         start_date_time: str,
-        end_date_time: str
+        end_date_time: str,
+        warn_on_empty_data: bool = False
     ):
         """Get data from HOBO Web Services
 
@@ -88,9 +89,12 @@ class HoboAPI:
                 Must be in yyyy-MM-dd HH:mm:ss format
             end_date_time (str):
                 Must be in yyyy-MM-dd HH:mm:ss format
+            warn_on_empty_data (bool):
+                If True, print a warning message (to HoboLogger, which by default is your console).
+                Has no effect on function return.
 
         Returns:
-            response (dict): JSON decoded connect response
+            response (dict): JSON decoded response
 
         Raises:
             TypeError:
@@ -115,6 +119,10 @@ class HoboAPI:
             path=f"/ws/data/file/JSON/user/{self.user_id}",
             params=params
         )
+
+        if warn_on_empty_data and not response.get('observation_list', None):
+            logger.warning(f"The data seems to be empty. Response: {response}, t = {int(time.time())}")
+
         return response
 
     def _get_access_token_if_needed(self, force: bool = False):
