@@ -28,3 +28,6 @@ dynamic = ['version', 'description']
 
 [project.urls]
 Source = "https://github.com/umonaca/bestlab_platform"
+
+[tool.flit.sdist]
+exclude = ["*_example.py"]
