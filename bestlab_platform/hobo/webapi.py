@@ -149,6 +149,8 @@ class HoboAPI:
             "client_secret": self.client_secret
         }
 
+        logger.debug(f"Getting new token, t = {int(time.time())}")
+
         logger.debug(
             f"Request: method = POST, \
                  url = {self.endpoint + HOBO_GET_TOKEN_API},\
