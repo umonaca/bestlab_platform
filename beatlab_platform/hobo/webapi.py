@@ -53,8 +53,8 @@ class HoboAPI:
     """HOBO API
 
     Example:
-        HoboAPI(client_id, client_secret, user_id)
-        HoboAPI.get_date(loggers, start_date_time, end_date_time)
+        hobo_api = HoboAPI(client_id, client_secret, user_id)
+        hobo_api.get_data(["1234567", "8912345"], start_date_time, end_date_time)
     """
 
     def __init__(
