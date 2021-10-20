@@ -2,7 +2,7 @@
 
 One package to access multiple different data sources through their respective API platforms.
 
-## Example Usage
+## Usage
 
 ### HOBO Platform
 
@@ -35,6 +35,12 @@ response = hobo_api.get_data(devices, start_time, end_time)
 # Pretty print the JSON object from response
 print(json.dumps(response, indent=2))
 ```
+
+**Note:** Since HOBO APIs are extremely straightforward, you can definitely write your own script without any extra packages (including this one) except for `requests`package. However, there are some extra functionality provided by this package:
+
+- exception handling
+- logging with standard format (including timestamps etc.)
+- caching and reusing of existing unexpired access tokens
 
 ### Tuya Platform
 
