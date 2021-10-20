@@ -1,4 +1,4 @@
-"""Tuya Open API."""
+"""Tuya Open API. Forked and rewrote from Tuya SDK with"""
 
 from __future__ import annotations
 
@@ -7,10 +7,10 @@ import hmac
 import json
 import time
 from typing import Any, Dict, Optional, Tuple
-
 import requests
-
+from ..exceptions import ResponseError
 from .openlogging import filter_logger, logger
+
 
 TUYA_ERROR_CODE_TOKEN_INVALID = 1010
 GET_TOKEN_API = "/v1.0/token"
@@ -27,7 +27,6 @@ class TuyaTokenInfo:
         uid: Tuya user ID.
         # platform_url: user region platform url
     """
-
     def __init__(self, token_response: Dict[str, Any] = None):
         """Init TuyaTokenInfo."""
         result = token_response.get("result", {})
@@ -49,7 +48,6 @@ class TuyaOpenAPI:
 
     openapi = TuyaOpenAPI(ENDPOINT, ACCESS_ID, ACCESS_KEY)
     """
-
     def __init__(
         self,
         endpoint: str,
@@ -67,6 +65,7 @@ class TuyaOpenAPI:
         self.lang = lang
 
         self.__login_path = GET_TOKEN_API
+        self.__refresh_token_path = REFRESH_TOKEN_API
 
         self.token_info: TuyaTokenInfo | None = None
         if auto_connect:
@@ -130,11 +129,11 @@ class TuyaOpenAPI:
         )
         return sign, t
 
-    def __refresh_access_token_if_need(self, path: str):
-        if self.is_connect() is False:
+    def _refresh_access_token_if_need(self, path: str):
+        if path.startswith(self.__login_path):
             return
 
-        if path.startswith(self.__login_path):
+        if path.startswith(self.__refresh_token_path):
             return
 
         # should use refresh token?
@@ -145,8 +144,8 @@ class TuyaOpenAPI:
             return
 
         self.token_info.access_token = ""
-        response = self.post(
-            GET_TOKEN_API.format(self.token_info.refresh_token)
+        response = self.get(
+            self.__refresh_token_path.format(self.token_info.refresh_token)
         )
 
         self.token_info = TuyaTokenInfo(response)
@@ -166,16 +165,15 @@ class TuyaOpenAPI:
             }
         )
 
-        if not response["success"]:
-            return response
-
         # Cache token info.
         self.token_info = TuyaTokenInfo(response)
 
         return response
 
     def is_connect(self) -> bool:
-        """Is connect to tuya cloud."""
+        """Whether we have an access token.
+        Note: will return true even if the access token is expired. Token refreshing is handled internally.
+        """
         return self.token_info is not None and len(self.token_info.access_token) > 0
 
     def __request(
@@ -185,13 +183,24 @@ class TuyaOpenAPI:
         params: Optional[Dict[str, Any]] = None,
         body: Optional[Dict[str, Any]] = None,
     ) -> Dict[str, Any] | None:
+        """Internal method to sign and send.
+        You should avoid using this method directly.
 
-        self.__refresh_access_token_if_need(path)
+        Args:
+            method (str): HTTP method
+            path (str): relative path starting with "/"
+            params (Optional[Dict[str, Any]]): HTTP parameters
+            body (Optional[Dict[str, Any]]): HTTP body
 
-        access_token = ""
-        if self.token_info:
-            access_token = self.token_info.access_token
+        Returns:
+            JSON decoded response (a dict).
 
+        Raises:
+            ResponseError: HTTP status code and response text
+        """
+        self._refresh_access_token_if_need(path)
+
+        access_token = self.token_info.access_token if self.token_info else ""
         sign, t = self._calculate_sign(method, path, params, body)
         headers = {
             "client_id": self.access_id,
@@ -203,32 +212,43 @@ class TuyaOpenAPI:
         }
 
         logger.debug(
-            f"Request: method = {method}, \
-                url = {self.endpoint + path},\
-                params = {params},\
-                body = {filter_logger(body)},\
-                t = {int(time.time()*1000)}"
+            f"Request: method = {method}, "
+            f"url = {self.endpoint + path}, "
+            f"params = {params}, "
+            f"body = {filter_logger(body)}, "
+            f"t = {int(time.time()*1000)}"
         )
 
         response = self.session.request(
             method, self.endpoint + path, params=params, json=body, headers=headers
         )
 
-        if response.ok is False:
-            logger.error(
-                f"Response error: code={response.status_code}, body={response.text}"
+        # Tuya returns HTTP 200 OK even if there is an error. The problem can only be detected from the result JSON.
+        if response.ok is False or response.json().get("success", False) is False:
+            # Retry
+            logger.warning(
+                f"Response error, trying to reconnect: "
+                f"code={response.status_code}, "
+                f"body={response.text}, "
+                f"t = {int(time.time() * 1000)}"
             )
-            return None
+            self.token_info = None
+            response = self.session.request(
+                method, self.endpoint + path, params=params, json=body, headers=headers
+            )
+            # Somehow failed again.
+            if response.ok is False or response.json().get("success", False) is False:
+                logger.error(
+                    f"Response error: code={response.status_code}, body={response.text}"
+                )
+                raise ResponseError(response.status_code, response.text)
+            # otherwise persist the response
 
         result = response.json()
 
         logger.debug(
             f"Response: {json.dumps(filter_logger(result), ensure_ascii=False, indent=2)}"
         )
-
-        if result.get("code", -1) == TUYA_ERROR_CODE_TOKEN_INVALID:
-            self.token_info = None
-            self.connect()
 
         return result
 

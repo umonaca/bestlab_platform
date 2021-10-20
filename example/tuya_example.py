@@ -72,7 +72,6 @@ if __name__ == '__main__':
     # logger.setLevel(logging.DEBUG)
 
     tuya_api = TuyaOpenAPI(ENDPOINT, CLIENT_ID, CLIENT_SECRET)
-    tuya_api.connect()
     print(tuya_api.token_info.access_token)
 
     device_names = ["PIR3", "PIR4", "PIR5", "PIR6"]
