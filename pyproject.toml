@@ -1,0 +1,30 @@
+[build-system]
+requires = ["flit_core >=2,<4"]
+build-backend = "flit_core.buildapi"
+
+[project]
+name = "bestlab_platform"
+authors = [
+    {name = "Wei Mu", email = "wmu100@syr.edu"},
+]
+dependencies = [
+    "requests",
+    "pycryptodome",
+]
+requires-python = ">=3.7"
+readme = "README.rst"
+classifiers = [
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+]
+dynamic = ['version', 'description']
+
+[project.urls]
+Source = "https://github.com/umonaca/bestlab_platform"
