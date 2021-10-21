@@ -31,7 +31,7 @@ devices = [
 ]
 start_time = '2021-10-15 00:00:00'
 end_time = '2021-10-15 01:00:00'
-response = hobo_api.get_data(devices, start_time, end_time)
+response = hobo_api.get_data(devices, start_time, end_time, warn_on_empty_data=True)
 # Pretty print the JSON object from response
 print(json.dumps(response, indent=2))
 ```
