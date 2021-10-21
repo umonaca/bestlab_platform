@@ -69,7 +69,10 @@ if __name__ == '__main__':
     CLIENT_SECRET = config["CLIENT_SECRET"]
 
     # Uncomment the following line to show debug output
-    # logger.setLevel(logging.DEBUG)
+    #
+    # import logging
+    # from bestlab_platform.tuya import TUYA_LOGGER
+    # TUYA_LOGGER.setLevel(logging.DEBUG)
 
     tuya_api = TuyaOpenAPI(ENDPOINT, CLIENT_ID, CLIENT_SECRET)
     print(tuya_api.token_info.access_token)
