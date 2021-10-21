@@ -6,7 +6,7 @@ One package to access multiple different data sources through their respective A
 
 ### HOBO Platform
 
-See `hobo_example.py` for a working example which read in the secrets from `.env` file. It requires `python-dotenv` project. Or you can manually input all the secrets in the code by yourself, like the following script:
+Example:
 
 ```python
 import json
@@ -17,9 +17,10 @@ CLIENT_ID = "aaaaa"
 CLIENT_SECRET = "bbbbbbbbbbbbb"
 USER_ID = "123456"
 
-# Uncomment the following lines to show debug output
+# Uncomment the following lines to show all debug output
 #
-# from bestlab_platform.hobo import HoboLogger 
+# import logging
+# from bestlab_platform.hobo import HoboLogger
 # HoboLogger.setLevel(logging.DEBUG)
 
 hobo_api = HoboAPI(CLIENT_ID, CLIENT_SECRET, USER_ID)
@@ -35,6 +36,8 @@ response = hobo_api.get_data(devices, start_time, end_time, warn_on_empty_data=T
 # Pretty print the JSON object from response
 print(json.dumps(response, indent=2))
 ```
+
+[example/hobo_example.py](https://github.com/umonaca/bestlab_platform/blob/master/example/hobo_example.py) is another working example which reads in the secrets from a single`.env` file. It requires `python-dotenv` package. 
 
 **Note:** Since HOBO APIs are extremely straightforward, you can definitely write your own script without any extra packages (including this one) except for `requests`package. However, there are some extra functionality provided by this package:
 
