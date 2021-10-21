@@ -9,7 +9,6 @@ authors = [
 ]
 dependencies = [
     "requests",
-    "pycryptodome",
 ]
 requires-python = ">=3.7"
 readme = "README.rst"
