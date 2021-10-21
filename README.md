@@ -37,7 +37,7 @@ response = hobo_api.get_data(devices, start_time, end_time, warn_on_empty_data=T
 print(json.dumps(response, indent=2))
 ```
 
-[example/hobo_example.py](https://github.com/umonaca/bestlab_platform/blob/master/example/hobo_example.py) is another working example which reads in the secrets from a single`.env` file. It requires `python-dotenv` package. 
+[hobo_example.py](https://github.com/umonaca/bestlab_platform/blob/master/example/hobo_example.py) is another working example which reads in the secrets from a single`.env` file. It requires `python-dotenv` package. 
 
 **Note:** Since HOBO APIs are extremely straightforward, you can definitely write your own script without any extra packages (including this one) except for `requests`package. However, there are some extra functionality provided by this package:
 

@@ -41,7 +41,7 @@ Example:
    # Pretty print the JSON object from response
    print(json.dumps(response, indent=2))
 
-`example/hobo_example.py <https://github.com/umonaca/bestlab_platform/blob/master/example/hobo_example.py>`__
+`hobo_example.py <https://github.com/umonaca/bestlab_platform/blob/master/example/hobo_example.py>`__
 is another working example which reads in the secrets from a
 single\ ``.env`` file. It requires ``python-dotenv`` package.
 
