@@ -158,6 +158,8 @@ class TuyaOpenAPI:
         Returns:
             response: connect response
         """
+        # Fix signature invalid bug when the user explicitly calls connect()
+        self.token_info = None
         response = self.get(
             path=GET_TOKEN_API,
             params={
