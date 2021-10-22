@@ -1,4 +1,15 @@
-BESTLab Platform
+.. BESTLab Platform documentation master file, created by
+   sphinx-quickstart on Fri Oct 22 03:24:16 2021.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+.. toctree::
+   :hidden:
+
+   Introduction <self>
+   modules
+
+Introduction
 ================
 
 One package to access multiple different data sources through their
@@ -46,14 +57,15 @@ Example
 is another working example which reads in the secrets from a
 single\ ``.env`` file. It requires ``python-dotenv`` package.
 
-**Note:** Since HOBO APIs are extremely straightforward, you can
-definitely write your own script without any extra packages (including
-this one) except for ``requests``\ package. However, there are some
-extra functionality provided by this package:
+.. note::
+    Since HOBO APIs are extremely straightforward, you can
+    definitely write your own script without any extra packages (including
+    this one) except for ``requests``\ package. However, there are some
+    extra functionality provided by this package:
 
--  exception handling
--  logging with standard format (including timestamps etc.)
--  caching and reusing of existing unexpired access tokens
+    -  exception handling
+    -  logging with standard format (including timestamps etc.)
+    -  caching and reusing of existing unexpired access tokens
 
 Tuya Platform
 ~~~~~~~~~~~~~
@@ -176,7 +188,9 @@ eGauge Platform
 
 Not implemented yet.
 
-API Reference
--------------
+Indices and tables
+==================
 
-WIP, but almost finished.
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`
