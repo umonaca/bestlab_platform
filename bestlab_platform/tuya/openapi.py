@@ -1,4 +1,4 @@
-"""Tuya Open API. Forked and rewrote from Tuya SDK with"""
+"""Tuya Open API. Forked and refactored from Tuya SDK https://github.com/tuya/tuya-iot-python-sdk"""
 
 from __future__ import annotations
 
