@@ -28,7 +28,7 @@ if __name__ == '__main__':
     tuya_api = TuyaOpenAPI(ENDPOINT, CLIENT_ID, CLIENT_SECRET)
     print(tuya_api.token_info.access_token)
 
-    # map of device name (your choice, can be string) -> device id in Tuya's system
+    # map of device name (your choice, can be any string, for readability) -> device id in Tuya's system
     # devices = {
     #     "PIR3": "asdasdadx",
     #     "PIR4": "12345abcde"
@@ -42,7 +42,7 @@ if __name__ == '__main__':
     start_timestamp = "1634005305000"
     end_timestamp = "1634523705000"
 
-    # Query in batch
+    # Example 1: Query in batch
     device_group = TuyaDeviceManager(tuya_api, device_map=devices)
     devices_log_map = device_group.get_device_log_in_batch(
         start_timestamp=start_timestamp,
@@ -54,3 +54,17 @@ if __name__ == '__main__':
     for dev_name, device_log in devices_log_map.items():
         with open(f'{dev_name}_historical_1017.json', 'w') as f:
             json.dump(device_log, f)
+
+    # Example 2: call API for a single device
+    # You can use the code above or the following. It's flexible.
+    response_device_status = SmartHomeDeviceAPI(tuya_api).get_device_status(devices["PIR3"])
+    print(response_device_status)
+
+    response_device_log = SmartHomeDeviceAPI(tuya_api).get_device_log(
+        device_id=devices["PIR3"],
+        start_timestamp=start_timestamp,
+        end_timestamp=end_timestamp,
+        device_name="PIR3",
+        warn_on_empty_data=True
+    )
+    print(response_device_log)
