@@ -2,7 +2,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Literal, Optional
+from typing import Any, Iterator, Optional
 from .openapi import TuyaOpenAPI
 from .openlogging import logger
 
@@ -169,3 +169,107 @@ class SmartHomeDeviceAPI:
         return self.api.post(
             f"/v1.0/devices/{device_id}/commands", {"commands": commands}
         )
+
+    def _yield_device_log_page(
+            self,
+            device_id: str,
+            start_time: int | float | str,
+            end_time: int | float | str,
+            size: int = 100,
+            type_: int = 7,
+            warn_on_empty_data: bool = False
+    ) -> Iterator[list]:
+        """Since device log API is paginated, this function returns an iterator which yields results within a page
+        for the given device.
+        You should avoid calling this function directly unless you know what you are doing. Please call
+        get_device_log() instead. This function is designed to be called by get_device_log().
+
+        Args:
+            device_id (str):
+                Device ID.
+            start_time (int | float | str):
+                Start timestamp for log to be queried. Note that free version of Tuya only keeps one week's data.
+            end_time (int | float | str):
+                End timestamp for log to be queried. Note that free version of Tuya only keeps one week's data.
+            size (int):
+                Page size. Although not documented anywhere, Tuya's limit for page size is <= 100.
+            type_ (int):
+                Usually this field should be 7.
+                See https://developer.tuya.com/en/docs/cloud/device-management?id=K9g6rfntdz78a#sjlx1
+            warn_on_empty_data (bool):
+                Print a warning message to the logger. Default: False.
+
+        Returns:
+            An iterator which produces one page's result each time. Stops when there are no more pages.
+        """
+        params = {
+            "type": type_,
+            "start_time": str(start_time),
+            "end_time": str(end_time),
+            "size": size
+        }
+        first_page = self.api.get(path=f"/v1.0/devices/{device_id}/logs", params=params)
+
+        # Warn on empty result if warn_on_empty_data = True
+        if warn_on_empty_data and not first_page["result"]["logs"]:
+            logger.warning(f"Detected empty result. device: {device_id}, params: {str(params)}")
+
+        yield first_page["result"]["logs"]
+
+        if first_page["result"]["has_next"]:
+            flag = True
+            current_page = first_page
+            while flag:
+                params["start_row_key"] = current_page["result"]["next_row_key"]
+                next_page = self.api.get(path=f"/v1.0/devices/{device_id}/logs", params=params)
+                yield next_page["result"]["logs"]
+
+                current_page = next_page
+                if not current_page["result"]["has_next"]:
+                    flag = False
+
+    def get_device_log(
+            self,
+            device_id: str,
+            start_timestamp: int | float | str,
+            end_timestamp: int | float | str,
+            device_name: Optional[str] = None,
+            warn_on_empty_data: bool = False
+    ) -> list[str, Any]:
+        """Get device log stored on the Tuya platform. Note that free version of Tuya Platform only stores 7 days' data.
+
+        Args:
+            device_id (str):
+                Device ID.
+            start_timestamp (int | float | str):
+                Start timestamp for log to be queried. Note that free version of Tuya only keeps one week's data.
+            end_timestamp (int | float | str):
+                End timestamp for log to be queried. Note that free version of Tuya only keeps one week's data.
+            device_name (str):
+                User friendly name for your convenience. It can be any string you like, such as "PIR3"
+            warn_on_empty_data (bool):
+                If True, print a warning message to the logger an empty page or empty final result is detected.
+                Default: False.
+        Returns:
+            A list of device logs. Note that the return type is not a dictionary and is not the raw response, because
+            multiple page is expected.
+        """
+        result_device_name = device_name if device_name else device_id
+        logger.info(f"Start fetching historical data for device {result_device_name}")
+        page_num = 1
+        device_logs = []
+        for page in self._yield_device_log_page(
+                device_id,
+                start_timestamp,
+                end_timestamp,
+                warn_on_empty_data=warn_on_empty_data
+        ):
+            logger.info(f"Fetched historical data for device {result_device_name}, page {page_num}")
+            page_num += 1
+            device_logs = device_logs + page
+
+        # Warn on empty result if warn_on_empty_data = True
+        if warn_on_empty_data and not device_logs:
+            logger.warning(f"Detected empty result for device {str(result_device_name)}")
+
+        return device_logs

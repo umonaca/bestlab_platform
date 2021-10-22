@@ -7,58 +7,31 @@
 
 from __future__ import annotations
 
+from typing import Any, List
+import logging
+from bestlab_platform.tuya import TUYA_LOGGER
+
 import json
 from dotenv import dotenv_values
-from bestlab_platform.tuya import TuyaOpenAPI
+from bestlab_platform.tuya import TuyaOpenAPI, SmartHomeDeviceAPI
 
 HISTORICAL_API = "/v1.0/devices/{}/logs"
+TUYA_LOGGER.setLevel(logging.INFO)
 
 
-def get_historical_data(
-        api: TuyaOpenAPI,
-        device_id: str,
-        start_time: int | float | str,
-        end_time: int | float | str,
-        size: int = 100,
-        type_: int = 7
-):
-    """TODO: Merge into tuya_platform package"""
-    params = {
-        "type": type_,
-        "start_time": str(start_time),
-        "end_time": str(end_time),
-        "size": size
-    }
-    first_page = api.get(path=HISTORICAL_API.format(device_id), params=params)
-    yield first_page["result"]["logs"]
-
-    if first_page["result"]["has_next"]:
-        flag = True
-        current_page = first_page
-        while flag:
-            params["start_row_key"] = current_page["result"]["next_row_key"]
-            next_page = api.get(path=HISTORICAL_API.format(device_id), params=params)
-            yield next_page["result"]["logs"]
-
-            current_page = next_page
-            if not current_page["result"]["has_next"]:
-                flag = False
-
-
-def get_devices_historical_data(api, devices, start_time, end_time):
+def get_devices_historical_data_in_batch(api, device_map, start_timestamp, end_timestamp, warn_on_empty_data=True):
     """TODO: Refactor into tuya_platform package"""
-    for device_name, device_id in devices.items():
-        print(device_name)
-        page_num = 0
-        logs: list = []
-        for page in get_historical_data(tuya_api, device_id, start_timestamp, end_timestamp):
-            page_num += 1
-            print(page)
-            print(page_num)
-            logs = logs + page
+    for device_name, device_id in device_map.items():
+        device_logs = SmartHomeDeviceAPI(api).get_device_log(
+            device_id,
+            start_timestamp,
+            end_timestamp,
+            device_name=device_name,
+            warn_on_empty_data=warn_on_empty_data
+        )
 
         with open(f'{device_name}_historical_1017.json', 'w') as f:
-            json.dump(logs, f)
+            json.dump(device_logs, f)
 
 
 if __name__ == '__main__':
@@ -85,4 +58,4 @@ if __name__ == '__main__':
     start_timestamp = "1634005305000"
     end_timestamp = "1634523705000"
 
-    get_devices_historical_data(tuya_api, devices, start_timestamp, end_timestamp)
+    get_devices_historical_data_in_batch(tuya_api, devices, start_timestamp, end_timestamp, warn_on_empty_data=True)

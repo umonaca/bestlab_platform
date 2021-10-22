@@ -8,7 +8,7 @@ logger = logging.getLogger(__package__)
 
 default_handler = logging.StreamHandler()
 default_handler.setFormatter(logging.Formatter(
-    "[%(asctime)s] [tuya-%(module)s] %(message)s"
+    "[%(asctime)s] [tuya-%(module)s] [%(levelname)s] %(message)s"
 ))
 
 logger.addHandler(default_handler)
