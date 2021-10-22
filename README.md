@@ -2,6 +2,14 @@
 
 One package to access multiple different data sources through their respective API platforms.
 
+## Install
+
+In conda or virtualenv environment, run the following commad:
+
+```bash
+python3 -m pip install -U bestlab_platform
+```
+
 ## Usage
 
 ### HOBO Platform
@@ -142,5 +150,5 @@ Not implemented yet.
 
 ## API Reference
 
-WIP, but almost finished.
+https://bestlab-platform.readthedocs.io/en/latest/index.html
 

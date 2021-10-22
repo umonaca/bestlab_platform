@@ -15,6 +15,15 @@ Introduction
 One package to access multiple different data sources through their
 respective API platforms.
 
+Install
+-------
+
+In conda or virtualenv environment, run the following commad:
+
+.. code:: bash
+
+   python3 -m pip install -U bestlab_platform
+
 Usage
 -----
 
@@ -187,6 +196,11 @@ eGauge Platform
 ~~~~~~~~~~~~~~~
 
 Not implemented yet.
+
+API Reference
+-------------
+
+https://bestlab-platform.readthedocs.io/en/latest/index.html
 
 Indices and tables
 ==================
