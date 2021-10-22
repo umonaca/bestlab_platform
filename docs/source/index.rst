@@ -66,53 +66,17 @@ Example
 is another working example which reads in the secrets from a
 single\ ``.env`` file. It requires ``python-dotenv`` package.
 
-.. note::
-    Since HOBO APIs are extremely straightforward, you can
-    definitely write your own script without any extra packages (including
-    this one) except for ``requests``\ package. However, there are some
-    extra functionality provided by this package:
+**Note:** Since HOBO APIs are extremely straightforward, you can
+definitely write your own script without any extra packages (including
+this one) except for ``requests``\ package. However, there are some
+extra functionality provided by this package:
 
-    -  exception handling
-    -  logging with standard format (including timestamps etc.)
-    -  caching and reusing of existing unexpired access tokens
+-  exception handling
+-  logging with standard format (including timestamps etc.)
+-  caching and reusing of existing unexpired access tokens
 
 Tuya Platform
 ~~~~~~~~~~~~~
-
-This package **correctly and automatically** handles connection, token
-caching and refreshing behind the scene so you can focus on your work.
-It provides functions to call most of the APIs available on their
-platform (available to our project account), and also added
-functionalities to:
-
--  Call API for multiple devices in batch.
--  Query device logs, correctly follows the pagination and return the
-   entire log available for the period.
-
-It is inspired by `Tuya’s own python
-SDK <https://github.com/tuya/tuya-iot-python-sdk>`__, but their SDK does
-not work for our projects, because of the following reasons:
-
--  It is only suitable for B-to-C scenarios. It uses API endpoints
-   **scoped to users within the cloud project**. In order to use these
-   endpoints, we have to physically go to where the devices are located
-   and add them again with another mobile app, and add those devices
-   into the correct “Asset”.
--  It requires subscription to Tuya’s message service, which is over
-   complicated.
--  It contains too many APIs that we will never use.
--  It does not have any function to query device logs. Also, Tuya’s API
-   to query the device log is paginated, which requires manual handling.
-
-`TinyTuya <https://github.com/jasonacox/tinytuya>`__ is another python
-project which uses a simple function to connect and fetch data from the
-Tuya IoT cloud. However, their function does not work seamlessly for us
-because:
-
--  Tuya platform never refreshes current access token, unless you use
-   the refresh token to get a new one. Access token expires two hours
-   later after it is first obtained, which means if we don’t refresh the
-   token, we will see an error message.
 
 .. _example-1:
 
@@ -192,6 +156,44 @@ is another working example which reads in the secrets from a
 single\ ``.env`` file in your working directory. It requires
 ``python-dotenv`` package.
 
+Why should I use this package for Tuya platform?
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+This package **correctly and automatically** handles connection, token
+caching and refreshing behind the scene so you can focus on your work.
+It provides functions to call most of the APIs available on their
+platform (available to our project account), and also added
+functionalities to:
+
+-  Call API for multiple devices in batch.
+-  Query device logs, correctly follow the pagination and return the
+   entire log available for the period.
+
+It is inspired by `Tuya’s own python
+SDK <https://github.com/tuya/tuya-iot-python-sdk>`__, but their SDK does
+not work for our projects, because of the following reasons:
+
+-  It is only suitable for B-to-C scenarios. It uses API endpoints
+   **scoped to users within the cloud project**. In order to use these
+   endpoints, we have to physically go to where the devices are located
+   and add them again with another mobile app, and add those devices
+   into the correct “Asset”.
+-  It requires subscription to Tuya’s message service, which is over
+   complicated.
+-  It contains too many APIs that we will never use.
+-  It does not have any function to query device logs. Also, Tuya’s API
+   to query the device log is paginated, which requires manual handling.
+
+`TinyTuya <https://github.com/jasonacox/tinytuya>`__ is another python
+project which uses a simple function to connect and fetch data from the
+Tuya IoT cloud. However, their function does not work seamlessly for us
+because:
+
+-  Tuya platform never refreshes current access token, unless you use
+   the refresh token to get a new one. Access token expires two hours
+   later after it is first obtained, which means if we don’t refresh the
+   token, we will see an error message.
+
 eGauge Platform
 ~~~~~~~~~~~~~~~
 
@@ -200,7 +202,7 @@ Not implemented yet.
 API Reference
 -------------
 
-https://bestlab-platform.readthedocs.io/en/latest/index.html
+https://bestlab-platform.readthedocs.io/en/latest/bestlab_platform.html
 
 Indices and tables
 ==================
