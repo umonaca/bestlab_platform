@@ -7,8 +7,6 @@ import json
 from dotenv import dotenv_values
 from bestlab_platform.tuya import TuyaOpenAPI, SmartHomeDeviceAPI, TuyaDeviceManager
 
-HISTORICAL_API = "/v1.0/devices/{}/logs"
-
 if __name__ == '__main__':
     # Secrets located in .env files
     config = dotenv_values(".env")
