@@ -8,7 +8,7 @@ from .openlogging import logger
 
 
 class SmartHomeDeviceAPI:
-    """Call Tuya Smart Home Device API directly.
+    """Tuya Smart Home Device API.
     See https://developer.tuya.com/en/docs/cloud/device-management?id=K9g6rfntdz78a for the list of APIs.
 
     Example:
@@ -242,14 +242,17 @@ class SmartHomeDeviceAPI:
             device_id (str):
                 Device ID.
             start_timestamp (int | float | str):
-                Start timestamp for log to be queried. Note that free version of Tuya only keeps one week's data.
+                Start timestamp for log to be queried. Must be an 10 digit or 13 digit unix timestamp.
+                Note that free version of Tuya only keeps one week's data.
             end_timestamp (int | float | str):
-                End timestamp for log to be queried. Note that free version of Tuya only keeps one week's data.
+                End timestamp for log to be queried. Must be an 10 digit or 13 digit unix timestamp
+                Note that free version of Tuya only keeps one week's data.
             device_name (str):
                 User friendly name for your convenience. It can be any string you like, such as "PIR3"
             warn_on_empty_data (bool):
                 If True, print a warning message to the logger an empty page or empty final result is detected.
                 Default: False.
+
         Returns:
             A list of device logs. Note that the return type is not a dictionary and is not the raw response, because
             multiple page is expected.
@@ -273,3 +276,114 @@ class SmartHomeDeviceAPI:
             logger.warning(f"Detected empty result for device {str(result_device_name)}")
 
         return device_logs
+
+
+class TuyaDeviceManager:
+    """Manages multiple devices and provides functions to call APIs for all devices in batch
+    Note: This is different from upstream Tuya SDK.
+    """
+
+    def __init__(
+        self,
+        api: TuyaOpenAPI,
+        device_map: Optional[dict[str, str]] = None,
+        device_list: Optional[list[str]] = None
+    ):
+        if (not device_map and not device_list) or (device_map and device_list):
+            raise ValueError("You mut specify either device_map or device_list")
+
+        self.api = api
+
+        self.device_map = device_map
+        self.device_ids = device_list
+
+        if device_map:
+            self.device_map = device_map
+            self.device_ids = list(device_map.values())
+        else:
+            self.device_map = {device_id: device_id for device_id in device_list}
+            self.device_ids = device_list
+
+    def get_device_status_in_batch(self) -> dict[str, Any]:
+        """Get device status for all devices in this instance in batch
+
+        Returns:
+            API response in a dictionary.
+        """
+        response = SmartHomeDeviceAPI(self.api).get_device_list_status(self.device_ids)
+        return response
+
+    def get_device_log_in_batch(
+            self,
+            start_timestamp: int | float | str,
+            end_timestamp: int | float | str,
+            warn_on_empty_data: bool = False
+    ) -> dict[str, Any]:
+        """Get device log stored on the Tuya platform. Note that free version of Tuya Platform only stores 7 days' data.
+
+        Args:
+            start_timestamp (int | float | str):
+                Start timestamp for log to be queried. Must be an 10 digit or 13 digit unix timestamp.
+                Note that free version of Tuya only keeps one week's data.
+            end_timestamp (int | float | str):
+                End timestamp for log to be queried. Must be an 10 digit or 13 digit unix timestamp
+                Note that free version of Tuya only keeps one week's data.
+            warn_on_empty_data (bool):
+                If True, print a warning message to the logger an empty page or empty final result is detected.
+                Default: False.
+
+        Returns:
+            Map of device name -> device log.
+        """
+        devices_log_map = {}
+        for device_name, device_id in self.device_map.items():
+            device_log = SmartHomeDeviceAPI(self.api).get_device_log(
+                device_id,
+                start_timestamp=start_timestamp,
+                end_timestamp=end_timestamp,
+                device_name=device_name,
+                warn_on_empty_data=warn_on_empty_data
+            )
+            devices_log_map[device_name] = device_log
+
+        return devices_log_map
+
+    def get_device_info_in_batch(self, include_device_status=True) -> dict[str, Any]:
+        """Get device info in batch
+
+        Args:
+            include_device_status (bool): Include device status in the return fields. Default: True
+
+        Returns:
+            API response in a dictionary.
+        """
+        response = SmartHomeDeviceAPI(self.api).get_device_list_info(
+            self.device_ids, include_device_status=include_device_status
+        )
+        return response
+
+    def get_factory_info_in_batch(self) -> dict[str, Any]:
+        """"Query the factory information of the devices.
+        Possible return fields are: id, uuid, sn, mac.
+
+        Returns:
+            API response in a dictionary.
+        """
+        response = SmartHomeDeviceAPI(self.api).get_factory_info(self.device_ids)
+        return response
+
+    def send_command_in_batch(self, commands: list[dict[str, Any]]) -> dict[str, Any]:
+        """Issue standard instructions to control equipments.
+
+        Args:
+            commands (list): issue commands.
+
+        Returns:
+            API response in a dictionary.
+        """
+        device_response_map: dict = {}
+        for device_name, device_id in self.device_map.items():
+            device_response = SmartHomeDeviceAPI(self.api).send_commands(device_id, commands)
+            device_response_map[device_name] = device_response
+
+        return device_response_map
