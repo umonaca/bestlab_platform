@@ -67,7 +67,6 @@ import json
 from bestlab_platform.tuya import TuyaOpenAPI, SmartHomeDeviceAPI, TuyaDeviceManager
 
 if __name__ == '__main__':
-    # Secrets located in .env files
     ENDPOINT = "https://openapi.tuyaus.com"
     CLIENT_ID = "aaabbbbcccc"
     CLIENT_SECRET = "dddddddddd12345"
