@@ -13,6 +13,13 @@ In conda or virtualenv environment, run the following commad:
 
    python3 -m pip install -U bestlab_platform
 
+If you are using Windows with Anaconda installed, use the following
+command in Anaconda Prompt:
+
+::
+
+   pip install -U bestlab_platform
+
 Usage
 -----
 
@@ -178,6 +185,14 @@ because:
    the refresh token to get a new one. Access token expires two hours
    later after it is first obtained, which means if we don’t refresh the
    token, we will see an error message.
+
+**Update 10/25/2021**: I have managed to find out Tuya’s C-to-C platform
+package `here <https://github.com/tuya/tuya-connector-python>`__, which
+uses unscoped API endpoint and Pulsar as message service. However, there
+is `a bug <https://github.com/tuya/tuya-iot-python-sdk/issues/35>`__
+which has not been properly fixed in both of their packages. Tokens are
+still not refreshed in the correct way with their packages. I have
+already fixed on my side when I rewrote the Tuya package.
 
 eGauge Platform
 ~~~~~~~~~~~~~~~
