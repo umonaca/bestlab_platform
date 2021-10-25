@@ -234,7 +234,8 @@ class SmartHomeDeviceAPI:
             start_timestamp: int | float | str,
             end_timestamp: int | float | str,
             device_name: Optional[str] = None,
-            warn_on_empty_data: bool = False
+            warn_on_empty_data: bool = False,
+            type_: int = 7
     ) -> list[str, Any]:
         """Get device log stored on the Tuya platform. Note that free version of Tuya Platform only stores 7 days' data.
 
@@ -252,6 +253,9 @@ class SmartHomeDeviceAPI:
             warn_on_empty_data (bool):
                 If True, print a warning message to the logger an empty page or empty final result is detected.
                 Default: False.
+            type_ (int):
+                Usually this field should be 7 ("the actual data" from the device), unless you want something else.
+                See https://developer.tuya.com/en/docs/cloud/device-management?id=K9g6rfntdz78a#sjlx1
 
         Returns:
             A list of device logs. Note that the return type is not a dictionary and is not the raw response, because
@@ -265,7 +269,8 @@ class SmartHomeDeviceAPI:
                 device_id,
                 start_timestamp,
                 end_timestamp,
-                warn_on_empty_data=warn_on_empty_data
+                warn_on_empty_data=warn_on_empty_data,
+                type_=type_
         ):
             logger.info(f"Fetched historical data for device {result_device_name}, page {page_num}")
             page_num += 1
@@ -317,7 +322,8 @@ class TuyaDeviceManager:
             self,
             start_timestamp: int | float | str,
             end_timestamp: int | float | str,
-            warn_on_empty_data: bool = False
+            warn_on_empty_data: bool = False,
+            type_: int = 7
     ) -> dict[str, Any]:
         """Get device log stored on the Tuya platform. Note that free version of Tuya Platform only stores 7 days' data.
 
@@ -331,6 +337,9 @@ class TuyaDeviceManager:
             warn_on_empty_data (bool):
                 If True, print a warning message to the logger an empty page or empty final result is detected.
                 Default: False.
+            type_ (int):
+                Usually this field should be 7 ("the actual data" from the device), unless you want something else.
+                See https://developer.tuya.com/en/docs/cloud/device-management?id=K9g6rfntdz78a#sjlx1
 
         Returns:
             Map of device name -> device log.
@@ -342,7 +351,8 @@ class TuyaDeviceManager:
                 start_timestamp=start_timestamp,
                 end_timestamp=end_timestamp,
                 device_name=device_name,
-                warn_on_empty_data=warn_on_empty_data
+                warn_on_empty_data=warn_on_empty_data,
+                type_=type_
             )
             devices_log_map[device_name] = device_log
 
