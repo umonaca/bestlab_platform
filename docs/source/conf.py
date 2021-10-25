@@ -53,6 +53,7 @@ autodoc_default_options = {
     'autodoc_inherit_docstrings': True,
 }
 
+autodoc_member_order = 'bysource'
 # autosummary_generate = True
 autoclass_content = "both"
 html_show_sourcelink = False
