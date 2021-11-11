@@ -148,7 +148,7 @@ It is inspired by [Tuya's own python SDK](https://github.com/tuya/tuya-iot-pytho
 
 - Tuya platform never refreshes current access token, unless you use the refresh token to get a new one. Access token expires two hours later after it is first obtained, which means if we don't refresh the token, we will see an error message.
 
-**Update 10/25/2021**: I have managed to find out Tuya's C-to-C platform package [here](https://github.com/tuya/tuya-connector-python), which uses unscoped API endpoint and Pulsar as message service. However, there is [a bug](https://github.com/tuya/tuya-iot-python-sdk/issues/35) which has not been properly fixed in both of their packages. Tokens are still not refreshed in the correct way with their packages. I have already fixed on my side when I rewrote the Tuya package.
+**Update 10/25/2021**: I have managed to find out Tuya's B-to-B platform package [here](https://github.com/tuya/tuya-connector-python), which uses unscoped API endpoint and Pulsar as message service. However, there is [a bug](https://github.com/tuya/tuya-iot-python-sdk/issues/35) which has not been properly fixed in both of their packages. Tokens are still not refreshed in the correct way with their packages. I have already fixed on my side when I rewrote the Tuya package.
 
 ### eGauge Platform
 
