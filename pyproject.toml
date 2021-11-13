@@ -23,7 +23,22 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
 ]
-dynamic = ['version', 'description']
+dynamic = ["version", "description"]
+
+[project.optional-dependencies]
+utils = ["python-dotenv"]
+docs = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "sphinx-autodoc-typehints"
+]
+linters = [
+    "flake8",
+    "flake8-bugbear",
+    "flake8-comprehensions",
+    "mypy",
+    "types-requests"
+]
 
 [project.urls]
 Source = "https://github.com/umonaca/bestlab_platform"
