@@ -7,10 +7,11 @@ import hmac
 import json
 import time
 from typing import Any, Dict, Optional, Tuple
+
 import requests
+
 from ..exceptions import ResponseError
 from .openlogging import filter_logger, logger
-
 
 TUYA_ERROR_CODE_TOKEN_INVALID = 1010
 GET_TOKEN_API = "/v1.0/token"
@@ -27,7 +28,7 @@ class TuyaTokenInfo:
         uid: Tuya user ID.
         # platform_url: user region platform url
     """
-    def __init__(self, token_response: Dict[str, Any] = None):
+    def __init__(self, token_response: Dict[str, Any]):
         """Init TuyaTokenInfo."""
         result = token_response.get("result", {})
 
@@ -129,11 +130,15 @@ class TuyaOpenAPI:
         )
         return sign, t
 
-    def _refresh_access_token_if_need(self, path: str):
+    def _refresh_access_token_if_need(self, path: str) -> None:
         if path.startswith(self.__login_path):
             return
 
         if path.startswith(self.__refresh_token_path):
+            return
+
+        if self.token_info is None:
+            self.connect()
             return
 
         # should use refresh token?
@@ -174,7 +179,8 @@ class TuyaOpenAPI:
 
     def is_connect(self) -> bool:
         """Whether we have an access token.
-        Note: will return true even if the access token is expired. Token refreshing is handled internally.
+        Note: will return true even if the access token is expired.
+        Token refreshing is handled internally.
         """
         return self.token_info is not None and len(self.token_info.access_token) > 0
 
@@ -184,7 +190,7 @@ class TuyaOpenAPI:
         path: str,
         params: Optional[Dict[str, Any]] = None,
         body: Optional[Dict[str, Any]] = None,
-    ) -> Dict[str, Any] | None:
+    ) -> dict[str, Any]:
         """Internal method to sign and send.
         You should avoid using this method directly.
 
@@ -225,7 +231,8 @@ class TuyaOpenAPI:
             method, self.endpoint + path, params=params, json=body, headers=headers
         )
 
-        # Tuya returns HTTP 200 OK even if there is an error. The problem can only be detected from the result JSON.
+        # Tuya returns HTTP 200 OK even if there is an error.
+        # They use their own error code to indicate the error.
         if response.ok is False or response.json().get("success", False) is False:
             # Retry
             logger.warning(
@@ -246,7 +253,7 @@ class TuyaOpenAPI:
                 raise ResponseError(response.status_code, response.text)
             # otherwise persist the response
 
-        result = response.json()
+        result: dict[str, Any] = response.json()
 
         logger.debug(
             f"Response: {json.dumps(filter_logger(result), ensure_ascii=False, indent=2)}"

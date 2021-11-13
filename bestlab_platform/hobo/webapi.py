@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union, List
-import time
-import requests
 import json
 import logging
+import time
+from typing import Any, List, Optional, Union
+
+import requests
+
 from ..exceptions import ResponseError
 
 # https://docs.python.org/3/howto/logging.html#logging-basic-tutorial
@@ -31,7 +33,7 @@ class HoboTokenInfo:
         token_type: "bearer".
         expire_time: Time in seconds when the token will be expired.
     """
-    def __init__(self, token_response: Dict[str, Any] = None):
+    def __init__(self, token_response: dict[str, Any]):
         """Init HoboTokenInfo."""
 
         self.access_token = token_response.get("access_token", "")
@@ -44,7 +46,7 @@ class HoboTokenInfo:
     def need_refresh(self) -> bool:
         """Should we get a new the token?"""
         if self.access_token:
-            return time.time() + 60 > self.expire_time
+            return time.time() + 60 > self.expire_time  # type: ignore
         else:
             return True
 
@@ -79,7 +81,7 @@ class HoboAPI:
         start_date_time: str,
         end_date_time: str,
         warn_on_empty_data: bool = False
-    ):
+    ) -> dict[str, Any]:
         """Get data from HOBO Web Services
 
         Args:
@@ -103,9 +105,9 @@ class HoboAPI:
         # Comma separated list of logger device IDs
         logger_list: str = ""
         if isinstance(loggers, str):
-            logger_list: str = loggers
+            logger_list = loggers
         elif isinstance(loggers, list):
-            logger_list: str = ",".join((str(id) for id in loggers))
+            logger_list = ",".join((str(id) for id in loggers))
         else:
             raise TypeError('Please check your input to get_data function')
 
@@ -125,7 +127,7 @@ class HoboAPI:
 
         return response
 
-    def _get_access_token_if_needed(self, force: bool = False):
+    def _get_access_token_if_needed(self, force: bool = False) -> None:
         """Get a new token if needed
 
         Args:
@@ -170,10 +172,10 @@ class HoboAPI:
         self,
         method: str,
         path: str,
-        params: Optional[Dict[str, Any]] = None,
-        body: Optional[Dict[str, Any]] = None,
+        params: Optional[dict[str, Any]] = None,
+        body: Optional[dict[str, Any]] = None,
         auth_required: bool = True
-    ) -> Dict[str, Any] | None:
+    ) -> dict[str, Any]:
         """Internal method to call requests package
 
         Args:
@@ -218,7 +220,7 @@ class HoboAPI:
             )
             raise ResponseError(response.status_code, response.text)
 
-        result = response.json()
+        result: dict[str, Any] = response.json()
 
         logger.debug(
             f"Response: {json.dumps(result, ensure_ascii=False, indent=2)}"
@@ -227,8 +229,8 @@ class HoboAPI:
         return result
 
     def get(
-        self, path: str, params: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, path: str, params: Optional[dict[str, Any]] = None
+    ) -> dict[str, Any]:
         """Http Get.
 
         Requests the server to return specified resources.
@@ -243,8 +245,8 @@ class HoboAPI:
         return self.__request(method="GET", path=path, params=params, body=None)
 
     def post(
-        self, path: str, body: Optional[Dict[str, Any]] = None
-    ) -> Dict[str, Any]:
+        self, path: str, body: Optional[dict[str, Any]] = None
+    ) -> dict[str, Any]:
         """Http Post.
 
         Requests the server to update specified resources.

@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-import logging
-from typing import Any, Dict
 import copy
+import logging
+from typing import Any, Optional
 
 logger = logging.getLogger(__package__)
 
@@ -22,7 +22,7 @@ FILTER_LIST = ["access_token", "client_id", "ip", "lat", "link_id",
 STAR = "***"
 
 
-def filter_logger(result_info: Dict[str, Any]):
+def filter_logger(result_info: Optional[dict[str, Any]]) -> Any:
     """Filter log, hide sensitive info."""
     if result_info is None:
         return result_info
