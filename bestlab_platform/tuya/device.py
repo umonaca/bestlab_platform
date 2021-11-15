@@ -301,15 +301,12 @@ class TuyaDeviceManager:
 
         self.api = api
 
-        self.device_map = device_map
-        self.device_ids = device_list
-
         if device_map:
-            self.device_map = device_map
-            self.device_ids = list(device_map.values())
+            self.device_map: dict[str, str] = device_map
+            self.device_idsL: list[str] = list(device_map.values())
         elif device_list:
-            self.device_map = {device_id: device_id for device_id in device_list}
-            self.device_ids = device_list
+            self.device_map: dict[str, str] = {device_id: device_id for device_id in device_list}  # type: ignore
+            self.device_ids: list[str] = device_list
         else:
             raise ValueError("You must specify either device_map or device_list")
 
@@ -320,7 +317,7 @@ class TuyaDeviceManager:
             API response in a dictionary.
         """
         response = SmartHomeDeviceAPI(self.api) \
-            .get_device_list_status(self.device_ids)  # type: ignore
+            .get_device_list_status(self.device_ids)
         return response
 
     def get_device_log_in_batch(
@@ -350,7 +347,7 @@ class TuyaDeviceManager:
             Map of device name -> device log.
         """
         devices_log_map = {}
-        for device_name, device_id in self.device_map.items():  # type: ignore
+        for device_name, device_id in self.device_map.items():
             device_log = SmartHomeDeviceAPI(self.api).get_device_log(
                 device_id,
                 start_timestamp=start_timestamp,
@@ -373,7 +370,7 @@ class TuyaDeviceManager:
             API response in a dictionary.
         """
         response = SmartHomeDeviceAPI(self.api).get_device_list_info(
-            self.device_ids, include_device_status=include_device_status  # type: ignore
+            self.device_ids, include_device_status=include_device_status
         )
         return response
 
@@ -385,7 +382,7 @@ class TuyaDeviceManager:
             API response in a dictionary.
         """
         response = SmartHomeDeviceAPI(self.api) \
-            .get_factory_info(self.device_ids)  # type: ignore
+            .get_factory_info(self.device_ids)
         return response
 
     def send_command_in_batch(self, commands: list[dict[str, Any]]) -> dict[str, Any]:
@@ -398,7 +395,7 @@ class TuyaDeviceManager:
             API response in a dictionary.
         """
         device_response_map: dict[str, Any] = {}
-        for device_name, device_id in self.device_map.items():  # type: ignore
+        for device_name, device_id in self.device_map.items():
             device_response = SmartHomeDeviceAPI(self.api).send_commands(device_id, commands)
             device_response_map[device_name] = device_response
 
