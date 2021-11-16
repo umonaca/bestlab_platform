@@ -146,3 +146,6 @@ cython_debug/
 
 # JSON output for debug purpose
 PIR*.json
+
+# Do not commit pyenv settings to package
+.python-version
