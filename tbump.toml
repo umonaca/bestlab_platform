@@ -35,6 +35,6 @@ src = "bestlab_platform/__init__.py"
 
 # Or run some commands after the git tag and the branch
 # have been pushed:
-#  [[after_push]]
-#  name = "publish"
-#  cmd = "./publish.sh"
+[[after_push]]
+name = "publish"
+cmd = "flit build & flit publish"
