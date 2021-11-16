@@ -1,5 +1,5 @@
-from .openapi import TuyaOpenAPI, TuyaTokenInfo
 from .device import SmartHomeDeviceAPI, TuyaDeviceManager
+from .openapi import TuyaOpenAPI, TuyaTokenInfo
 from .openlogging import TUYA_LOGGER
 
 __all__ = [
