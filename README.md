@@ -1,5 +1,9 @@
 # BESTLab Platform
 
+[![CI](https://github.com/umonaca/bestlab_platform/actions/workflows/test.yaml/badge.svg?event=push)](https://github.com/umonaca/bestlab_platform/actions?query=event%3Apush+branch%3Amaster)
+[![pypi](https://img.shields.io/pypi/v/bestlab_platform.svg)](https://pypi.python.org/pypi/bestlab_platform)
+[![license](https://img.shields.io/github/license/umonaca/bestlab_platform.svg)](https://github.com/umonaca/bestlab_platform/blob/master/LICENSE)
+
 One package to access multiple different data sources through their respective API platforms.
 
 ## Install
